@@ -13,7 +13,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #2D3748 0%, #1A202C 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -40,24 +40,26 @@
             left: 0;
             right: 0;
             height: 5px;
-            background: linear-gradient(90deg, #C53030, #E53E3E);
+            background: linear-gradient(90deg, #c71d23, #c71d23);
         }
 
         .logo {
-            width: 120px;
-            height: 120px;
+            width: 150px;
+            height: 80px;
             margin: 0 auto 30px;
-            background: #C53030;
-            border-radius: 20px;
+            background: white;
+            border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 10px 30px rgba(197, 48, 48, 0.3);
+            box-shadow: 0 10px 30px rgba(199, 29, 35, 0.2);
+            padding: 10px;
         }
 
-        .logo svg {
-            width: 80px;
-            height: 80px;
+        .logo img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
         }
 
         .welcome-text {
@@ -102,9 +104,9 @@
 
         .form-group input:focus {
             outline: none;
-            border-color: #C53030;
+            border-color: #c71d23;
             background: white;
-            box-shadow: 0 0 0 3px rgba(197, 48, 48, 0.1);
+            box-shadow: 0 0 0 3px rgba(199, 29, 35, 0.1);
         }
 
         .form-group input::placeholder {
@@ -114,7 +116,7 @@
         .connect-btn {
             width: 100%;
             padding: 18px;
-            background: linear-gradient(135deg, #C53030, #E53E3E);
+            background: linear-gradient(135deg, #c71d23, #a11a1f);
             color: white;
             border: none;
             border-radius: 12px;
@@ -129,7 +131,7 @@
 
         .connect-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(197, 48, 48, 0.3);
+            box-shadow: 0 10px 25px rgba(199, 29, 35, 0.3);
         }
 
         .connect-btn:active {
@@ -172,7 +174,7 @@
             padding: 20px;
             border-radius: 12px;
             margin-top: 25px;
-            border-left: 4px solid #C53030;
+            border-left: 4px solid #c71d23;
         }
 
         .wifi-info h3 {
@@ -213,12 +215,12 @@
         }
 
         .input-error {
-            border-color: #E53E3E !important;
+            border-color: #c71d23 !important;
             background: #FED7D7 !important;
         }
 
         .error-message {
-            color: #E53E3E;
+            color: #c71d23;
             font-size: 12px;
             margin-top: 5px;
         }
@@ -227,17 +229,7 @@
 <body>
     <div class="container">
         <div class="logo">
-            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                <!-- Logo A with lightning bolt -->
-                <path d="M50 160 L80 40 L120 40 L150 160 L125 160 L118 135 L82 135 L75 160 Z" fill="white"/>
-                <path d="M87 115 L113 115 L108 95 L92 95 Z" fill="white"/>
-                
-                <!-- Lightning bolt -->
-                <path d="M110 50 L95 90 L105 90 L95 120 L130 80 L120 80 L135 50 Z" fill="#C53030"/>
-                
-                <!-- ANDRA text -->
-                <text x="100" y="185" text-anchor="middle" fill="white" font-family="Arial Black" font-size="24" font-weight="bold">ANDRA</text>
-            </svg>
+            <img src="https://fluig.andra.com.br/volume/stream/Rmx1aWc=/P3Q9MSZ2b2w9RGVmYXVsdCZpZD04NTI3JnZlcj0xMDAwJmZpbGU9QU5EUkErJTI4MSUyOS5wbmcmY3JjPTE2OTA1NzMxMTQmc2l6ZT0wLjAzODc3NCZ1SWQ9MjUmZlNJZD0xJnVTSWQ9MSZkPWZhbHNlJnRrbj0mcHVibGljVXJsPXRydWUmYXR0YWNoPWZhbHNl.png" alt="Andra Logo">
         </div>
 
         <div class="welcome-text">
