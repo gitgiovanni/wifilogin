@@ -4,7 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal WiFi - Andra</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --primary: #c71d23;
+            --primary-dark: #a11a1f;
+            --secondary: #2D3748;
+            --background: #f0f2f5;
+            --text: #4A5568;
+            --light-gray: #E2E8F0;
+            --success: #38A169;
+            --error: #E53E3E;
+            --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,25 +26,33 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #2D3748 0%, #1A202C 100%);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #1a2a3a 0%, #0d1b2a 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            color: var(--text);
+            line-height: 1.6;
         }
 
         .container {
             background: white;
             border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            box-shadow: var(--card-shadow);
             width: 100%;
-            max-width: 450px;
-            padding: 40px;
+            max-width: 480px;
+            padding: 40px 35px;
             text-align: center;
             position: relative;
             overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
         }
 
         .container::before {
@@ -39,21 +61,32 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 5px;
-            background: linear-gradient(90deg, #c71d23, #c71d23);
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            box-shadow: 0 2px 8px rgba(199, 29, 35, 0.3);
+        }
+
+        .logo-container {
+            margin: 0 auto 25px;
+            position: relative;
         }
 
         .logo {
-            width: 150px;
-            height: 80px;
-            margin: 0 auto 30px;
+            width: 140px;
+            height: 75px;
+            margin: 0 auto;
             background: white;
-            border-radius: 15px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 10px 30px rgba(199, 29, 35, 0.2);
+            box-shadow: 0 5px 20px rgba(199, 29, 35, 0.15);
             padding: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
         }
 
         .logo img {
@@ -62,49 +95,84 @@
             object-fit: contain;
         }
 
+        .wifi-status {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--primary);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
         .welcome-text {
             margin-bottom: 30px;
         }
 
         .welcome-text h1 {
-            color: #2D3748;
+            color: var(--secondary);
             font-size: 28px;
             font-weight: 700;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .welcome-text p {
-            color: #718096;
+            color: var(--text);
             font-size: 16px;
-            line-height: 1.5;
+            max-width: 85%;
+            margin: 0 auto;
         }
 
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 22px;
             text-align: left;
+            position: relative;
         }
 
         .form-group label {
             display: block;
             margin-bottom: 8px;
-            color: #4A5568;
+            color: var(--secondary);
             font-weight: 600;
             font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-group label i {
+            margin-right: 8px;
+            color: var(--primary);
+            font-size: 16px;
+        }
+
+        .input-container {
+            position: relative;
         }
 
         .form-group input {
             width: 100%;
-            padding: 15px 20px;
-            border: 2px solid #E2E8F0;
+            padding: 16px 20px 16px 45px;
+            border: 2px solid var(--light-gray);
             border-radius: 12px;
             font-size: 16px;
-            transition: all 0.3s ease;
+            transition: var(--transition);
             background: #F7FAFC;
+            color: var(--secondary);
         }
 
         .form-group input:focus {
             outline: none;
-            border-color: #c71d23;
+            border-color: var(--primary);
             background: white;
             box-shadow: 0 0 0 3px rgba(199, 29, 35, 0.1);
         }
@@ -113,25 +181,38 @@
             color: #A0AEC0;
         }
 
+        .input-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #A0AEC0;
+            font-size: 18px;
+        }
+
         .connect-btn {
             width: 100%;
             padding: 18px;
-            background: linear-gradient(135deg, #c71d23, #a11a1f);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
             border: none;
             border-radius: 12px;
             font-size: 18px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 10px;
+            transition: var(--transition);
+            margin-top: 15px;
             position: relative;
             overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
         .connect-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(199, 29, 35, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(199, 29, 35, 0.35);
         }
 
         .connect-btn:active {
@@ -140,7 +221,7 @@
 
         .connect-btn.loading {
             pointer-events: none;
-            opacity: 0.8;
+            opacity: 0.9;
         }
 
         .connect-btn.loading::after {
@@ -164,72 +245,249 @@
 
         .terms {
             margin-top: 25px;
-            font-size: 12px;
+            font-size: 13px;
             color: #718096;
-            line-height: 1.4;
+            line-height: 1.5;
+        }
+
+        .terms a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        .terms a:hover {
+            text-decoration: underline;
+            color: var(--primary-dark);
         }
 
         .wifi-info {
             background: #F7FAFC;
             padding: 20px;
             border-radius: 12px;
-            margin-top: 25px;
-            border-left: 4px solid #c71d23;
+            margin-top: 30px;
+            border-left: 4px solid var(--primary);
+            text-align: left;
         }
 
         .wifi-info h3 {
-            color: #2D3748;
-            font-size: 16px;
-            margin-bottom: 10px;
+            color: var(--secondary);
+            font-size: 17px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .wifi-info p {
-            color: #4A5568;
+            color: var(--text);
             font-size: 14px;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .wifi-info i {
+            color: var(--primary);
+            min-width: 20px;
         }
 
         .success-message {
             background: #C6F6D5;
             color: #22543D;
-            padding: 15px;
+            padding: 18px;
             border-radius: 12px;
             margin-top: 20px;
-            border-left: 4px solid #38A169;
+            border-left: 4px solid var(--success);
             display: none;
+            text-align: left;
+            animation: fadeIn 0.5s ease;
         }
 
-        @media (max-width: 480px) {
+        .success-message i {
+            margin-right: 10px;
+            font-size: 20px;
+            vertical-align: middle;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .input-error {
+            border-color: var(--error) !important;
+            background: #FED7D7 !important;
+        }
+
+        .error-message {
+            color: var(--error);
+            font-size: 13px;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            animation: shake 0.3s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #A0AEC0;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 5px;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary);
+        }
+
+        .strength-meter {
+            height: 5px;
+            border-radius: 5px;
+            margin-top: 8px;
+            background: #e2e8f0;
+            overflow: hidden;
+        }
+
+        .strength-meter::before {
+            content: '';
+            display: block;
+            height: 100%;
+            width: 0;
+            background: var(--error);
+            transition: width 0.3s ease;
+        }
+
+        .strength-meter.weak::before { width: 30%; background: var(--error); }
+        .strength-meter.medium::before { width: 60%; background: #ED8936; }
+        .strength-meter.strong::before { width: 100%; background: var(--success); }
+
+        @media (max-width: 500px) {
             .container {
                 padding: 30px 25px;
+                max-width: 100%;
             }
             
             .logo {
-                width: 100px;
-                height: 100px;
+                width: 120px;
+                height: 65px;
             }
             
             .welcome-text h1 {
                 font-size: 24px;
             }
+
+            .welcome-text p {
+                font-size: 15px;
+            }
+
+            .connect-btn {
+                padding: 16px;
+                font-size: 17px;
+            }
         }
 
-        .input-error {
-            border-color: #c71d23 !important;
-            background: #FED7D7 !important;
+        .progress-bar {
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            margin: 25px 0 10px;
+            overflow: hidden;
         }
 
-        .error-message {
-            color: #c71d23;
+        .progress {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
             font-size: 12px;
-            margin-top: 5px;
+            color: #718096;
+            margin-bottom: 25px;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .step.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .step::before {
+            content: '';
+            width: 12px;
+            height: 12px;
+            background: #e2e8f0;
+            border-radius: 50%;
+            margin-bottom: 5px;
+            z-index: 1;
+        }
+
+        .step.active::before {
+            background: var(--primary);
+            box-shadow: 0 0 0 3px rgba(199, 29, 35, 0.2);
+        }
+
+        .step.complete::before {
+            background: var(--primary);
+            content: '\f00c';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            font-size: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="logo">
-            <img src="https://fluig.andra.com.br/volume/stream/Rmx1aWc=/P3Q9MSZ2b2w9RGVmYXVsdCZpZD04NTI3JnZlcj0xMDAwJmZpbGU9QU5EUkErJTI4MSUyOS5wbmcmY3JjPTE2OTA1NzMxMTQmc2l6ZT0wLjAzODc3NCZ1SWQ9MjUmZlNJZD0xJnVTSWQ9MSZkPWZhbHNlJnRrbj0mcHVibGljVXJsPXRydWUmYXR0YWNoPWZhbHNl.png" alt="Andra Logo">
+        <div class="logo-container">
+            <div class="logo">
+                <img src="https://fluig.andra.com.br/volume/stream/Rmx1aWc=/P3Q9MSZ2b2w9RGVmYXVsdCZpZD04NTI3JnZlcj0xMDAwJmZpbGU9QU5EUkErJTI4MSUyOS5wbmcmY3JjPTE2OTA1NzMxMTQmc2l6ZT0wLjAzODc3NCZ1SWQ9MjUmZlNJZD0xJnVTSWQ9MSZkPWZhbHNlJnRrbj0mcHVibGljVXJsPXRydWUmYXR0YWNoPWZhbHNl.png" alt="Andra Logo">
+            </div>
+            <div class="wifi-status">
+                <i class="fas fa-wifi"></i>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress" id="formProgress"></div>
+        </div>
+        
+        <div class="progress-steps">
+            <div class="step active" id="step1">Informações</div>
+            <div class="step" id="step2">Termos</div>
+            <div class="step" id="step3">Conexão</div>
         </div>
 
         <div class="welcome-text">
@@ -239,42 +497,85 @@
 
         <form id="wifiForm">
             <div class="form-group">
-                <label for="fullName">Nome Completo</label>
-                <input type="text" id="fullName" name="fullName" placeholder="Digite seu nome completo" required>
+                <label for="fullName"><i class="fas fa-user"></i> Nome Completo</label>
+                <div class="input-container">
+                    <i class="fas fa-user input-icon"></i>
+                    <input type="text" id="fullName" name="fullName" placeholder="Digite seu nome completo" required>
+                </div>
                 <div class="error-message" id="nameError"></div>
             </div>
 
             <div class="form-group">
-                <label for="email">E-mail</label>
-                <input type="email" id="email" name="email" placeholder="Digite seu e-mail" required>
+                <label for="email"><i class="fas fa-envelope"></i> E-mail</label>
+                <div class="input-container">
+                    <i class="fas fa-envelope input-icon"></i>
+                    <input type="email" id="email" name="email" placeholder="Digite seu e-mail" required>
+                </div>
                 <div class="error-message" id="emailError"></div>
             </div>
 
             <div class="form-group">
-                <label for="cpf">CPF</label>
-                <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" maxlength="14" required>
+                <label for="cpf"><i class="fas fa-id-card"></i> CPF</label>
+                <div class="input-container">
+                    <i class="fas fa-id-card input-icon"></i>
+                    <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" maxlength="14" required>
+                </div>
                 <div class="error-message" id="cpfError"></div>
             </div>
 
+            <div class="form-group">
+                <label for="phone"><i class="fas fa-phone"></i> Telefone</label>
+                <div class="input-container">
+                    <i class="fas fa-phone input-icon"></i>
+                    <input type="tel" id="phone" name="phone" placeholder="(00) 00000-0000" maxlength="15" required>
+                </div>
+                <div class="error-message" id="phoneError"></div>
+            </div>
+
+            <div class="form-group hidden" id="termsSection">
+                <div class="wifi-info">
+                    <h3><i class="fas fa-file-contract"></i> Termos de Uso</h3>
+                    <p>Ao se conectar à rede Andra WiFi, você concorda com os seguintes termos:</p>
+                    <p><i class="fas fa-check-circle"></i> Uso responsável da internet</p>
+                    <p><i class="fas fa-check-circle"></i> Respeito às leis de proteção de dados</p>
+                    <p><i class="fas fa-check-circle"></i> Não realizar atividades ilegais</p>
+                    <p><i class="fas fa-check-circle"></i> Limite de 2 horas de conexão contínua</p>
+                    
+                    <div class="form-group" style="margin-top: 15px;">
+                        <div style="display: flex; align-items: flex-start; gap: 10px;">
+                            <input type="checkbox" id="acceptTerms" name="acceptTerms" style="margin-top: 3px;">
+                            <label for="acceptTerms" style="font-weight: normal; margin: 0;">
+                                Li e concordo com os <a href="#" target="_blank">Termos de Uso</a> e <a href="#" target="_blank">Política de Privacidade</a>
+                            </label>
+                        </div>
+                        <div class="error-message" id="termsError"></div>
+                    </div>
+                </div>
+            </div>
+
             <button type="submit" class="connect-btn" id="connectBtn">
+                <i class="fas fa-plug"></i>
                 <span id="btnText">Conectar à Internet</span>
             </button>
         </form>
 
-        <div class="success-message" id="successMessage">
-            <strong>Conectado com sucesso!</strong><br>
-            Você já pode navegar livremente. Bem-vindo à rede Andra WiFi!
+        <div class="success-message hidden" id="successMessage">
+            <i class="fas fa-check-circle"></i>
+            <div>
+                <strong>Conectado com sucesso!</strong><br>
+                Você já pode navegar livremente. Bem-vindo à rede Andra WiFi!
+            </div>
         </div>
 
         <div class="wifi-info">
-            <h3>🔒 Conexão Segura</h3>
-            <p>• Navegação criptografada e protegida</p>
-            <p>• Velocidade de até 100 Mbps</p>
-            <p>• Suporte técnico 24/7</p>
+            <h3><i class="fas fa-shield-alt"></i> Conexão Segura</h3>
+            <p><i class="fas fa-lock"></i> Navegação criptografada e protegida</p>
+            <p><i class="fas fa-tachometer-alt"></i> Velocidade de até 100 Mbps</p>
+            <p><i class="fas fa-headset"></i> Suporte técnico 24/7</p>
         </div>
 
         <div class="terms">
-            Ao conectar-se, você concorda com nossos <strong>Termos de Uso</strong> e <strong>Política de Privacidade</strong>. 
+            Ao conectar-se, você concorda com nossos <a href="#" target="_blank">Termos de Uso</a> e <a href="#" target="_blank">Política de Privacidade</a>. 
             Seus dados são protegidos de acordo com a LGPD.
         </div>
     </div>
@@ -283,19 +584,49 @@
         // Formatação do CPF
         document.getElementById('cpf').addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 11) value = value.substring(0, 11);
             if (value.length <= 11) {
                 value = value.replace(/(\d{3})(\d)/, '$1.$2');
                 value = value.replace(/(\d{3})(\d)/, '$1.$2');
                 value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
             }
             e.target.value = value;
+            validateCPF(e.target);
+        });
+
+        // Formatação do telefone
+        document.getElementById('phone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 11) value = value.substring(0, 11);
+            
+            if (value.length > 10) {
+                // Formato (00) 00000-0000
+                value = value.replace(/^(\d{2})(\d)/, '($1) $2');
+                value = value.replace(/(\d{5})(\d)/, '$1-$2');
+            } else if (value.length > 6) {
+                // Formato (00) 0000-0000
+                value = value.replace(/^(\d{2})(\d)/, '($1) $2');
+                value = value.replace(/(\d{4})(\d)/, '$1-$2');
+            } else if (value.length > 2) {
+                value = value.replace(/^(\d{2})(\d)/, '($1) $2');
+            }
+            e.target.value = value;
         });
 
         // Validação do CPF
-        function validateCPF(cpf) {
-            cpf = cpf.replace(/\D/g, '');
-            if (cpf.length !== 11) return false;
-            if (/^(.)\1*$/.test(cpf)) return false;
+        function validateCPF(cpfInput) {
+            const cpf = cpfInput.value.replace(/\D/g, '');
+            const errorElement = document.getElementById('cpfError');
+            
+            if (cpf.length !== 11) {
+                errorElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> CPF deve ter 11 dígitos';
+                return false;
+            }
+            
+            if (/^(.)\1*$/.test(cpf)) {
+                errorElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> CPF inválido';
+                return false;
+            }
             
             let sum = 0;
             for (let i = 0; i < 9; i++) {
@@ -311,7 +642,65 @@
             let digit2 = 11 - (sum % 11);
             if (digit2 > 9) digit2 = 0;
             
-            return digit1 === parseInt(cpf[9]) && digit2 === parseInt(cpf[10]);
+            const isValid = digit1 === parseInt(cpf[9]) && digit2 === parseInt(cpf[10]);
+            
+            if (!isValid) {
+                errorElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> CPF inválido';
+            } else {
+                errorElement.textContent = '';
+            }
+            
+            return isValid;
+        }
+
+        // Validação em tempo real
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('blur', function() {
+                validateField(this);
+            });
+            
+            input.addEventListener('input', function() {
+                this.classList.remove('input-error');
+                const errorElement = this.parentElement.parentElement.querySelector('.error-message');
+                if (errorElement) errorElement.textContent = '';
+            });
+        });
+
+        function validateField(field) {
+            const errorElement = field.parentElement.parentElement.querySelector('.error-message');
+            
+            if (!field.value.trim()) {
+                field.classList.add('input-error');
+                errorElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> Campo obrigatório';
+                return false;
+            }
+            
+            if (field.id === 'fullName' && field.value.trim().length < 3) {
+                field.classList.add('input-error');
+                errorElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> Nome deve ter pelo menos 3 caracteres';
+                return false;
+            }
+            
+            if (field.id === 'email') {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(field.value)) {
+                    field.classList.add('input-error');
+                    errorElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> E-mail inválido';
+                    return false;
+                }
+            }
+            
+            if (field.id === 'cpf') {
+                return validateCPF(field);
+            }
+            
+            if (field.id === 'phone' && field.value.replace(/\D/g, '').length < 10) {
+                field.classList.add('input-error');
+                errorElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> Telefone inválido';
+                return false;
+            }
+            
+            return true;
         }
 
         // Validação do formulário
@@ -321,8 +710,14 @@
             const fullName = document.getElementById('fullName');
             const email = document.getElementById('email');
             const cpf = document.getElementById('cpf');
+            const phone = document.getElementById('phone');
+            const acceptTerms = document.getElementById('acceptTerms');
             const connectBtn = document.getElementById('connectBtn');
             const btnText = document.getElementById('btnText');
+            const termsSection = document.getElementById('termsSection');
+            const formProgress = document.getElementById('formProgress');
+            const step2 = document.getElementById('step2');
+            const step3 = document.getElementById('step3');
             
             // Limpar erros anteriores
             document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
@@ -330,47 +725,58 @@
             
             let isValid = true;
             
-            // Validar nome
-            if (fullName.value.trim().length < 3) {
-                fullName.classList.add('input-error');
-                document.getElementById('nameError').textContent = 'Nome deve ter pelo menos 3 caracteres';
-                isValid = false;
-            }
+            // Validar campos básicos
+            if (!validateField(fullName)) isValid = false;
+            if (!validateField(email)) isValid = false;
+            if (!validateField(cpf)) isValid = false;
+            if (!validateField(phone)) isValid = false;
             
-            // Validar email
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email.value)) {
-                email.classList.add('input-error');
-                document.getElementById('emailError').textContent = 'E-mail inválido';
-                isValid = false;
-            }
-            
-            // Validar CPF
-            if (!validateCPF(cpf.value)) {
-                cpf.classList.add('input-error');
-                document.getElementById('cpfError').textContent = 'CPF inválido';
-                isValid = false;
+            // Se estiver na seção de termos
+            if (!termsSection.classList.contains('hidden')) {
+                if (!acceptTerms.checked) {
+                    document.getElementById('termsError').innerHTML = '<i class="fas fa-exclamation-circle"></i> Você deve aceitar os termos';
+                    isValid = false;
+                }
             }
             
             if (isValid) {
-                // Simular conexão
-                connectBtn.classList.add('loading');
-                btnText.textContent = 'Conectando...';
-                
-                setTimeout(() => {
-                    connectBtn.style.display = 'none';
-                    document.getElementById('successMessage').style.display = 'block';
+                // Se ainda não mostrou os termos
+                if (termsSection.classList.contains('hidden')) {
+                    termsSection.classList.remove('hidden');
+                    formProgress.style.width = '50%';
+                    step2.classList.add('active');
+                    btnText.textContent = 'Aceitar e Conectar';
+                    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                } 
+                // Se já mostrou os termos, prosseguir com conexão
+                else {
+                    connectBtn.classList.add('loading');
+                    btnText.textContent = 'Conectando...';
                     
-                    // Simular redirecionamento após 3 segundos
+                    // Simular conexão
                     setTimeout(() => {
-                        // Aqui você redirecionaria para a página de sucesso ou liberaria o acesso
-                        console.log('Usuário conectado:', {
-                            nome: fullName.value,
-                            email: email.value,
-                            cpf: cpf.value
-                        });
-                    }, 3000);
-                }, 2000);
+                        formProgress.style.width = '100%';
+                        step3.classList.add('active');
+                        
+                        setTimeout(() => {
+                            document.getElementById('successMessage').classList.remove('hidden');
+                            connectBtn.style.display = 'none';
+                            
+                            // Simular redirecionamento após 3 segundos
+                            setTimeout(() => {
+                                console.log('Usuário conectado:', {
+                                    nome: fullName.value,
+                                    email: email.value,
+                                    cpf: cpf.value,
+                                    phone: phone.value
+                                });
+                                
+                                // Aqui você redirecionaria para a página de sucesso ou liberaria o acesso
+                                // window.location.href = 'https://andra.com.br/welcome';
+                            }, 3000);
+                        }, 1000);
+                    }, 1500);
+                }
             }
         });
 
@@ -378,7 +784,8 @@
         document.querySelectorAll('input').forEach(input => {
             input.addEventListener('focus', function() {
                 this.classList.remove('input-error');
-                this.parentElement.querySelector('.error-message').textContent = '';
+                const errorElement = this.parentElement.parentElement.querySelector('.error-message');
+                if (errorElement) errorElement.textContent = '';
             });
         });
     </script>
