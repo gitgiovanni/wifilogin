@@ -38,23 +38,24 @@
         }
 
         body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: url('https://fluig.andra.com.br/volume/stream/Rmx1aWc=/P3Q9MSZ2b2w9RGVmYXVsdCZpZD04NTI3JnZlcj0xMDAwJmZpbGU9QU5EUkErJTI4MSUyOS5wbmcmY3JjPTE2OTA1NzMxMTQmc2l6ZT0wLjAzODc3NCZ1SWQ9MjUmZlNJZD0xJnVTSWQ9MSZkPWZhbHNlJnRrbj0mcHVibGljVXJsPXRydWUmYXR0YWNoPWZhbHNl.png');
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 60%;
-    opacity: 0.05;
-    z-index: -1;
-    pointer-events: none;
-}
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('https://fluig.andra.com.br/volume/stream/Rmx1aWc=/P3Q9MSZ2b2w9RGVmYXVsdCZpZD04NTI3JnZlcj0xMDAwJmZpbGU9QU5EUkErJTI4MSUyOS5wbmcmY3JjPTE2OTA1NzMxMTQmc2l6ZT0wLjAzODc3NCZ1SWQ9MjUmZlNJZD0xJnVTSWQ9MSZkPWZhbHNlJnRrbj0mcHVibGljVXJsPXRydWUmYXR0YWNoPWZhbHNl.png');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: cover;
+            opacity: 0.03;
+            z-index: -1;
+            pointer-events: none;
+        }
 
         .container {
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
             border-radius: 20px;
             box-shadow: var(--card-shadow);
             width: 100%;
@@ -182,14 +183,14 @@
             border-radius: 12px;
             font-size: 16px;
             transition: var(--transition);
-            background: #F7FAFC;
+            background: rgba(247, 250, 252, 0.9);
             color: var(--secondary);
         }
 
         .form-group input:focus {
             outline: none;
             border-color: var(--primary);
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
             box-shadow: 0 0 0 3px rgba(199, 29, 35, 0.1);
         }
 
@@ -279,7 +280,8 @@
         }
 
         .wifi-info {
-            background: #F7FAFC;
+            background: rgba(247, 250, 252, 0.8);
+            backdrop-filter: blur(5px);
             padding: 20px;
             border-radius: 12px;
             margin-top: 30px;
@@ -419,7 +421,7 @@
 
         .progress-bar {
             height: 6px;
-            background: #e2e8f0;
+            background: rgba(226, 232, 240, 0.8);
             border-radius: 3px;
             margin: 25px 0 10px;
             overflow: hidden;
@@ -800,10 +802,4 @@
         document.querySelectorAll('input').forEach(input => {
             input.addEventListener('focus', function() {
                 this.classList.remove('input-error');
-                const errorElement = this.parentElement.parentElement.querySelector('.error-message');
-                if (errorElement) errorElement.textContent = '';
-            });
-        });
-    </script>
-</body>
-</html>
+                const errorElement = this.
