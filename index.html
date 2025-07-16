@@ -37,7 +37,7 @@
             line-height: 1.6;
         }
 
-body::before {
+        body::before {
     content: '';
     position: fixed;
     top: 0;
@@ -47,18 +47,18 @@ body::before {
     background-image: url('https://fluig.andra.com.br/volume/stream/Rmx1aWc=/P3Q9MSZ2b2w9RGVmYXVsdCZpZD04NTI3JnZlcj0xMDAwJmZpbGU9QU5EUkErJTI4MSUyOS5wbmcmY3JjPTE2OTA1NzMxMTQmc2l6ZT0wLjAzODc3NCZ1SWQ9MjUmZlNJZD0xJnVTSWQ9MSZkPWZhbHNlJnRrbj0mcHVibGljVXJsPXRydWUmYXR0YWNoPWZhbHNl.png');
     background-repeat: no-repeat;
     background-position: center;
-    background-size: cover; /* Expande o logo para ocupar toda a tela */
-    opacity: 0.1; /* Mantém a opacidade original, ajustável conforme necessário */
-    filter: saturate(0.5); /* Reduz o tom azulado; ajuste para mais branco se preferir */
-    z-index: -1; /* Garante que fique atrás do conteúdo */
-    pointer-events: none; /* Evita interferência com o conteúdo */
+    background-size: 60%;
+    opacity: 0.05;
+    z-index: -1;
+    pointer-events: none;
 }
+
         .container {
             background: white;
             border-radius: 20px;
             box-shadow: var(--card-shadow);
             width: 100%;
-            max-widthAlberto: 480px;
+            max-width: 480px;
             padding: 40px 35px;
             text-align: center;
             position: relative;
@@ -79,7 +79,7 @@ body::before {
             right: 0;
             height: 6px;
             background: linear-gradient(90deg, var(--primary), var(--primary-dark));
-            box-shadow: 0 2px 8px rgba(199, 29, 35, 0.-sans-serif3);
+            box-shadow: 0 2px 8px rgba(199, 29, 35, 0.3);
         }
 
         .logo-container {
