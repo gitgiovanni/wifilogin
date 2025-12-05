@@ -529,15 +529,6 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="cpf"><i class="fas fa-id-card"></i> CPF</label>
-                    <div class="input-container">
-                        <i class="fas fa-id-card input-icon"></i>
-                        <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" maxlength="14" required>
-                    </div>
-                    <div class="error-message" id="cpfError"></div>
-                </div>
-
-                <div class="form-group">
                     <label for="phone"><i class="fas fa-phone"></i> Telefone</label>
                     <div class="input-container">
                         <i class="fas fa-phone input-icon"></i>
@@ -598,18 +589,6 @@
     <script>
         let currentStep = 1;
 
-        // Formatação do CPF
-        document.getElementById('cpf').addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length > 11) value = value.substring(0, 11);
-            if (value.length <= 11) {
-                value = value.replace(/(\d{3})(\d)/, '$1.$2');
-                value = value.replace(/(\d{3})(\d)/, '$1.$2');
-                value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-            }
-            e.target.value = value;
-        });
-
         // Formatação do telefone
         document.getElementById('phone').addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
@@ -626,30 +605,6 @@
             }
             e.target.value = value;
         });
-
-        // Validação do CPF
-        function validateCPF(cpf) {
-            cpf = cpf.replace(/\D/g, '');
-            
-            if (cpf.length !== 11) return false;
-            if (/^(.)\1*$/.test(cpf)) return false;
-            
-            let sum = 0;
-            for (let i = 0; i < 9; i++) {
-                sum += parseInt(cpf[i]) * (10 - i);
-            }
-            let digit1 = 11 - (sum % 11);
-            if (digit1 > 9) digit1 = 0;
-            
-            sum = 0;
-            for (let i = 0; i < 10; i++) {
-                sum += parseInt(cpf[i]) * (11 - i);
-            }
-            let digit2 = 11 - (sum % 11);
-            if (digit2 > 9) digit2 = 0;
-            
-            return digit1 === parseInt(cpf[9]) && digit2 === parseInt(cpf[10]);
-        }
 
         // Limpar erros ao digitar
         document.querySelectorAll('input').forEach(input => {
@@ -670,7 +625,6 @@
             
             const fullName = document.getElementById('fullName');
             const email = document.getElementById('email');
-            const cpf = document.getElementById('cpf');
             const phone = document.getElementById('phone');
             const acceptTerms = document.getElementById('acceptTerms');
             const termsSection = document.getElementById('termsSection');
@@ -697,12 +651,6 @@
                 if (!emailRegex.test(email.value)) {
                     showError('emailError', 'E-mail inválido');
                     email.classList.add('input-error');
-                    isValid = false;
-                }
-                
-                if (!validateCPF(cpf.value)) {
-                    showError('cpfError', 'CPF inválido');
-                    cpf.classList.add('input-error');
                     isValid = false;
                 }
                 
@@ -772,7 +720,6 @@
                     console.log('Usuário conectado:', {
                         nome: document.getElementById('fullName').value,
                         email: document.getElementById('email').value,
-                        cpf: document.getElementById('cpf').value,
                         telefone: document.getElementById('phone').value,
                         timestamp: new Date().toISOString()
                     });
