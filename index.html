@@ -529,6 +529,15 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="birthdate"><i class="fas fa-calendar-alt"></i> Data de Nascimento</label>
+                    <div class="input-container">
+                        <i class="fas fa-calendar-alt input-icon"></i>
+                        <input type="text" id="birthdate" name="birthdate" placeholder="DD/MM/AAAA" maxlength="10" required>
+                    </div>
+                    <div class="error-message" id="birthdateError"></div>
+                </div>
+
+                <div class="form-group">
                     <label for="phone"><i class="fas fa-phone"></i> Telefone</label>
                     <div class="input-container">
                         <i class="fas fa-phone input-icon"></i>
@@ -589,6 +598,19 @@
     <script>
         let currentStep = 1;
 
+        // Formatação da data de nascimento
+        document.getElementById('birthdate').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 8) value = value.substring(0, 8);
+            
+            if (value.length >= 5) {
+                value = value.replace(/^(\d{2})(\d{2})(\d{0,4})/, '$1/$2/$3');
+            } else if (value.length >= 3) {
+                value = value.replace(/^(\d{2})(\d{0,2})/, '$1/$2');
+            }
+            e.target.value = value;
+        });
+
         // Formatação do telefone
         document.getElementById('phone').addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
@@ -605,6 +627,31 @@
             }
             e.target.value = value;
         });
+
+        // Validação da data de nascimento
+        function validateBirthdate(date) {
+            const parts = date.split('/');
+            if (parts.length !== 3) return false;
+            
+            const day = parseInt(parts[0]);
+            const month = parseInt(parts[1]);
+            const year = parseInt(parts[2]);
+            
+            if (day < 1 || day > 31 || month < 1 || month > 12 || year < 1900 || year > new Date().getFullYear()) {
+                return false;
+            }
+            
+            const dateObj = new Date(year, month - 1, day);
+            if (dateObj.getDate() !== day || dateObj.getMonth() !== month - 1 || dateObj.getFullYear() !== year) {
+                return false;
+            }
+            
+            // Verificar se a pessoa tem pelo menos 13 anos
+            const today = new Date();
+            const age = today.getFullYear() - year - (today.getMonth() < month - 1 || (today.getMonth() === month - 1 && today.getDate() < day) ? 1 : 0);
+            
+            return age >= 13;
+        }
 
         // Limpar erros ao digitar
         document.querySelectorAll('input').forEach(input => {
@@ -625,6 +672,7 @@
             
             const fullName = document.getElementById('fullName');
             const email = document.getElementById('email');
+            const birthdate = document.getElementById('birthdate');
             const phone = document.getElementById('phone');
             const acceptTerms = document.getElementById('acceptTerms');
             const termsSection = document.getElementById('termsSection');
@@ -651,6 +699,12 @@
                 if (!emailRegex.test(email.value)) {
                     showError('emailError', 'E-mail inválido');
                     email.classList.add('input-error');
+                    isValid = false;
+                }
+                
+                if (!validateBirthdate(birthdate.value)) {
+                    showError('birthdateError', 'Data inválida ou idade mínima de 13 anos');
+                    birthdate.classList.add('input-error');
                     isValid = false;
                 }
                 
@@ -720,6 +774,7 @@
                     console.log('Usuário conectado:', {
                         nome: document.getElementById('fullName').value,
                         email: document.getElementById('email').value,
+                        dataDeNascimento: document.getElementById('birthdate').value,
                         telefone: document.getElementById('phone').value,
                         timestamp: new Date().toISOString()
                     });
