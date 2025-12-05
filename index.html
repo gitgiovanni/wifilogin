@@ -27,7 +27,7 @@
 
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: #0000;
+            background: #f0f2f5;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -176,7 +176,9 @@
             position: relative;
         }
 
-        .form-group input {
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="tel"] {
             width: 100%;
             padding: 16px 20px 16px 45px;
             border: 2px solid var(--light-gray);
@@ -205,6 +207,7 @@
             transform: translateY(-50%);
             color: #A0AEC0;
             font-size: 18px;
+            pointer-events: none;
         }
 
         .connect-btn {
@@ -227,18 +230,27 @@
             gap: 10px;
         }
 
-        .connect-btn:hover {
+        .connect-btn:hover:not(:disabled) {
             transform: translateY(-3px);
             box-shadow: 0 12px 25px rgba(199, 29, 35, 0.35);
         }
 
-        .connect-btn:active {
+        .connect-btn:active:not(:disabled) {
             transform: translateY(0);
+        }
+
+        .connect-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
         }
 
         .connect-btn.loading {
             pointer-events: none;
             opacity: 0.9;
+        }
+
+        .connect-btn.loading .btn-content {
+            opacity: 0;
         }
 
         .connect-btn.loading::after {
@@ -324,6 +336,10 @@
             animation: fadeIn 0.5s ease;
         }
 
+        .success-message.show {
+            display: block;
+        }
+
         .success-message i {
             margin-right: 10px;
             font-size: 20px;
@@ -344,79 +360,20 @@
             color: var(--error);
             font-size: 13px;
             margin-top: 8px;
-            display: flex;
+            display: none;
             align-items: center;
             gap: 5px;
             animation: shake 0.3s ease;
+        }
+
+        .error-message.show {
+            display: flex;
         }
 
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-5px); }
             75% { transform: translateX(5px); }
-        }
-
-        .password-toggle {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: #A0AEC0;
-            cursor: pointer;
-            font-size: 18px;
-            padding: 5px;
-        }
-
-        .password-toggle:hover {
-            color: var(--primary);
-        }
-
-        .strength-meter {
-            height: 5px;
-            border-radius: 5px;
-            margin-top: 8px;
-            background: #e2e8f0;
-            overflow: hidden;
-        }
-
-        .strength-meter::before {
-            content: '';
-            display: block;
-            height: 100%;
-            width: 0;
-            background: var(--error);
-            transition: width 0.3s ease;
-        }
-
-        .strength-meter.weak::before { width: 30%; background: var(--error); }
-        .strength-meter.medium::before { width: 60%; background: #ED8936; }
-        .strength-meter.strong::before { width: 100%; background: var(--success); }
-
-        @media (max-width: 500px) {
-            .container {
-                padding: 30px 25px;
-                max-width: 100%;
-            }
-            
-            .logo {
-                width: 120px;
-                height: 65px;
-            }
-            
-            .welcome-text h1 {
-                font-size: 24px;
-            }
-
-            .welcome-text p {
-                font-size: 15px;
-            }
-
-            .connect-btn {
-                padding: 16px;
-                font-size: 17px;
-            }
         }
 
         .progress-bar {
@@ -472,18 +429,56 @@
 
         .step.complete::before {
             background: var(--primary);
-            content: '\f00c';
-            font-family: 'Font Awesome 5 Free';
-            font-weight: 900;
-            font-size: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
         }
 
         .hidden {
-            display: none;
+            display: none !important;
+        }
+
+        .terms-checkbox-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .terms-checkbox-container input[type="checkbox"] {
+            margin-top: 3px;
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+        }
+
+        .terms-checkbox-container label {
+            font-weight: normal !important;
+            margin: 0 !important;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        @media (max-width: 500px) {
+            .container {
+                padding: 30px 25px;
+                max-width: 100%;
+            }
+            
+            .logo {
+                width: 120px;
+                height: 65px;
+            }
+            
+            .welcome-text h1 {
+                font-size: 24px;
+            }
+
+            .welcome-text p {
+                font-size: 15px;
+            }
+
+            .connect-btn {
+                padding: 16px;
+                font-size: 17px;
+            }
         }
     </style>
 </head>
@@ -514,43 +509,45 @@
         </div>
 
         <form id="wifiForm">
-            <div class="form-group">
-                <label for="fullName"><i class="fas fa-user"></i> Nome Completo</label>
-                <div class="input-container">
-                    <i class="fas fa-user input-icon"></i>
-                    <input type="text" id="fullName" name="fullName" placeholder="Digite seu nome completo" required>
+            <div id="basicInfoSection">
+                <div class="form-group">
+                    <label for="fullName"><i class="fas fa-user"></i> Nome Completo</label>
+                    <div class="input-container">
+                        <i class="fas fa-user input-icon"></i>
+                        <input type="text" id="fullName" name="fullName" placeholder="Digite seu nome completo" required>
+                    </div>
+                    <div class="error-message" id="nameError"></div>
                 </div>
-                <div class="error-message" id="nameError"></div>
+
+                <div class="form-group">
+                    <label for="email"><i class="fas fa-envelope"></i> E-mail</label>
+                    <div class="input-container">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" id="email" name="email" placeholder="Digite seu e-mail" required>
+                    </div>
+                    <div class="error-message" id="emailError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="cpf"><i class="fas fa-id-card"></i> CPF</label>
+                    <div class="input-container">
+                        <i class="fas fa-id-card input-icon"></i>
+                        <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" maxlength="14" required>
+                    </div>
+                    <div class="error-message" id="cpfError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone"><i class="fas fa-phone"></i> Telefone</label>
+                    <div class="input-container">
+                        <i class="fas fa-phone input-icon"></i>
+                        <input type="tel" id="phone" name="phone" placeholder="(00) 00000-0000" maxlength="15" required>
+                    </div>
+                    <div class="error-message" id="phoneError"></div>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="email"><i class="fas fa-envelope"></i> E-mail</label>
-                <div class="input-container">
-                    <i class="fas fa-envelope input-icon"></i>
-                    <input type="email" id="email" name="email" placeholder="Digite seu e-mail" required>
-                </div>
-                <div class="error-message" id="emailError"></div>
-            </div>
-
-            <div class="form-group">
-                <label for="cpf"><i class="fas fa-id-card"></i> CPF</label>
-                <div class="input-container">
-                    <i class="fas fa-id-card input-icon"></i>
-                    <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" maxlength="14" required>
-                </div>
-                <div class="error-message" id="cpfError"></div>
-            </div>
-
-            <div class="form-group">
-                <label for="phone"><i class="fas fa-phone"></i> Telefone</label>
-                <div class="input-container">
-                    <i class="fas fa-phone input-icon"></i>
-                    <input type="tel" id="phone" name="phone" placeholder="(00) 00000-0000" maxlength="15" required>
-                </div>
-                <div class="error-message" id="phoneError"></div>
-            </div>
-
-            <div class="form-group hidden" id="termsSection">
+            <div class="hidden" id="termsSection">
                 <div class="wifi-info">
                     <h3><i class="fas fa-file-contract"></i> Termos de Uso</h3>
                     <p>Ao se conectar à rede Andra WiFi, você concorda com os seguintes termos:</p>
@@ -559,25 +556,25 @@
                     <p><i class="fas fa-check-circle"></i> Não realizar atividades ilegais</p>
                     <p><i class="fas fa-check-circle"></i> Limite de 2 horas de conexão contínua</p>
                     
-                    <div class="form-group" style="margin-top: 15px;">
-                        <div style="display: flex; align-items: flex-start; gap: 10px;">
-                            <input type="checkbox" id="acceptTerms" name="acceptTerms" style="margin-top: 3px;">
-                            <label for="acceptTerms" style="font-weight: normal; margin: 0;">
-                                Li e concordo com os <a href="#" target="_blank">Termos de Uso</a> e <a href="#" target="_blank">Política de Privacidade</a>
-                            </label>
-                        </div>
-                        <div class="error-message" id="termsError"></div>
+                    <div class="terms-checkbox-container">
+                        <input type="checkbox" id="acceptTerms" name="acceptTerms">
+                        <label for="acceptTerms">
+                            Li e concordo com os <a href="#" target="_blank">Termos de Uso</a> e <a href="#" target="_blank">Política de Privacidade</a>
+                        </label>
                     </div>
+                    <div class="error-message" id="termsError"></div>
                 </div>
             </div>
 
             <button type="submit" class="connect-btn" id="connectBtn">
-                <i class="fas fa-plug"></i>
-                <span id="btnText">Conectar à Internet</span>
+                <span class="btn-content">
+                    <i class="fas fa-plug"></i>
+                    <span id="btnText">Conectar à Internet</span>
+                </span>
             </button>
         </form>
 
-        <div class="success-message hidden" id="successMessage">
+        <div class="success-message" id="successMessage">
             <i class="fas fa-check-circle"></i>
             <div>
                 <strong>Conectado com sucesso!</strong><br>
@@ -599,6 +596,8 @@
     </div>
 
     <script>
+        let currentStep = 1;
+
         // Formatação do CPF
         document.getElementById('cpf').addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
@@ -609,7 +608,6 @@
                 value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
             }
             e.target.value = value;
-            validateCPF(e.target);
         });
 
         // Formatação do telefone
@@ -618,11 +616,9 @@
             if (value.length > 11) value = value.substring(0, 11);
             
             if (value.length > 10) {
-                // Formato (00) 00000-0000
                 value = value.replace(/^(\d{2})(\d)/, '($1) $2');
                 value = value.replace(/(\d{5})(\d)/, '$1-$2');
             } else if (value.length > 6) {
-                // Formato (00) 0000-0000
                 value = value.replace(/^(\d{2})(\d)/, '($1) $2');
                 value = value.replace(/(\d{4})(\d)/, '$1-$2');
             } else if (value.length > 2) {
@@ -632,19 +628,11 @@
         });
 
         // Validação do CPF
-        function validateCPF(cpfInput) {
-            const cpf = cpfInput.value.replace(/\D/g, '');
-            const errorElement = document.getElementById('cpfError');
+        function validateCPF(cpf) {
+            cpf = cpf.replace(/\D/g, '');
             
-            if (cpf.length !== 11) {
-                errorElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> CPF deve ter 11 dígitos';
-                return false;
-            }
-            
-            if (/^(.)\1*$/.test(cpf)) {
-                errorElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> CPF inválido';
-                return false;
-            }
+            if (cpf.length !== 11) return false;
+            if (/^(.)\1*$/.test(cpf)) return false;
             
             let sum = 0;
             for (let i = 0; i < 9; i++) {
@@ -660,66 +648,21 @@
             let digit2 = 11 - (sum % 11);
             if (digit2 > 9) digit2 = 0;
             
-            const isValid = digit1 === parseInt(cpf[9]) && digit2 === parseInt(cpf[10]);
-            
-            if (!isValid) {
-                errorElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> CPF inválido';
-            } else {
-                errorElement.textContent = '';
-            }
-            
-            return isValid;
+            return digit1 === parseInt(cpf[9]) && digit2 === parseInt(cpf[10]);
         }
 
-        // Validação em tempo real
+        // Limpar erros ao digitar
         document.querySelectorAll('input').forEach(input => {
-            input.addEventListener('blur', function() {
-                validateField(this);
-            });
-            
             input.addEventListener('input', function() {
                 this.classList.remove('input-error');
-                const errorElement = this.parentElement.parentElement.querySelector('.error-message');
-                if (errorElement) errorElement.textContent = '';
+                const errorId = this.id + 'Error';
+                const errorElement = document.getElementById(errorId);
+                if (errorElement) {
+                    errorElement.classList.remove('show');
+                    errorElement.textContent = '';
+                }
             });
         });
-
-        function validateField(field) {
-            const errorElement = field.parentElement.parentElement.querySelector('.error-message');
-            
-            if (!field.value.trim()) {
-                field.classList.add('input-error');
-                errorElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> Campo obrigatório';
-                return false;
-            }
-            
-            if (field.id === 'fullName' && field.value.trim().length < 3) {
-                field.classList.add('input-error');
-                errorElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> Nome deve ter pelo menos 3 caracteres';
-                return false;
-            }
-            
-            if (field.id === 'email') {
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(field.value)) {
-                    field.classList.add('input-error');
-                    errorElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> E-mail inválido';
-                    return false;
-                }
-            }
-            
-            if (field.id === 'cpf') {
-                return validateCPF(field);
-            }
-            
-            if (field.id === 'phone' && field.value.replace(/\D/g, '').length < 10) {
-                field.classList.add('input-error');
-                errorElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> Telefone inválido';
-                return false;
-            }
-            
-            return true;
-        }
 
         // Validação do formulário
         document.getElementById('wifiForm').addEventListener('submit', function(e) {
@@ -730,76 +673,118 @@
             const cpf = document.getElementById('cpf');
             const phone = document.getElementById('phone');
             const acceptTerms = document.getElementById('acceptTerms');
-            const connectBtn = document.getElementById('connectBtn');
-            const btnText = document.getElementById('btnText');
             const termsSection = document.getElementById('termsSection');
-            const formProgress = document.getElementById('formProgress');
-            const step2 = document.getElementById('step2');
-            const step3 = document.getElementById('step3');
+            const basicInfoSection = document.getElementById('basicInfoSection');
             
-            // Limpar erros anteriores
+            // Limpar todos os erros
             document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
-            document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.classList.remove('show');
+                el.textContent = '';
+            });
             
             let isValid = true;
             
-            // Validar campos básicos
-            if (!validateField(fullName)) isValid = false;
-            if (!validateField(email)) isValid = false;
-            if (!validateField(cpf)) isValid = false;
-            if (!validateField(phone)) isValid = false;
-            
-            // Se estiver na seção de termos
-            if (!termsSection.classList.contains('hidden')) {
-                if (!acceptTerms.checked) {
-                    document.getElementById('termsError').innerHTML = '<i class="fas fa-exclamation-circle"></i> Você deve aceitar os termos';
+            if (currentStep === 1) {
+                // Validar informações básicas
+                if (!fullName.value.trim() || fullName.value.trim().length < 3) {
+                    showError('nameError', 'Nome deve ter pelo menos 3 caracteres');
+                    fullName.classList.add('input-error');
                     isValid = false;
                 }
-            }
-            
-            if (isValid) {
-                // Se ainda não mostrou os termos
-                if (termsSection.classList.contains('hidden')) {
+                
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email.value)) {
+                    showError('emailError', 'E-mail inválido');
+                    email.classList.add('input-error');
+                    isValid = false;
+                }
+                
+                if (!validateCPF(cpf.value)) {
+                    showError('cpfError', 'CPF inválido');
+                    cpf.classList.add('input-error');
+                    isValid = false;
+                }
+                
+                if (phone.value.replace(/\D/g, '').length < 10) {
+                    showError('phoneError', 'Telefone inválido');
+                    phone.classList.add('input-error');
+                    isValid = false;
+                }
+                
+                if (isValid) {
+                    // Avançar para termos
+                    currentStep = 2;
+                    basicInfoSection.classList.add('hidden');
                     termsSection.classList.remove('hidden');
-                    formProgress.style.width = '50%';
-                    step2.classList.add('active');
-                    btnText.textContent = 'Aceitar e Conectar';
-                    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-                } 
-                // Se já mostrou os termos, prosseguir com conexão
-                else {
-                    connectBtn.classList.add('loading');
-                    btnText.textContent = 'Conectando...';
+                    document.getElementById('formProgress').style.width = '66%';
+                    document.getElementById('step1').classList.add('complete');
+                    document.getElementById('step2').classList.add('active');
+                    document.getElementById('btnText').textContent = 'Aceitar e Conectar';
                     
-                    // Simular conexão
+                    // Scroll suave para os termos
                     setTimeout(() => {
-                        formProgress.style.width = '100%';
-                        step3.classList.add('active');
-                        
-                        setTimeout(() => {
-                            document.getElementById('successMessage').classList.remove('hidden');
-                            connectBtn.style.display = 'none';
-                            
-                            // Simular redirecionamento após 3 segundos
-                            setTimeout(() => {
-                                console.log('Usuário conectado:', {
-                                    nome: fullName.value,
-                                    email: email.value,
-                                    cpf: cpf.value,
-                                    phone: phone.value
-                                });
-                                
-                                // Aqui você redirecionaria para a página de sucesso ou liberaria o acesso
-                                // window.location.href = 'https://andra.com.br/welcome';
-                            }, 3000);
-                        }, 1000);
-                    }, 1500);
+                        termsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }, 100);
+                }
+            } else if (currentStep === 2) {
+                // Validar aceite dos termos
+                if (!acceptTerms.checked) {
+                    showError('termsError', 'Você deve aceitar os termos para continuar');
+                    isValid = false;
+                }
+                
+                if (isValid) {
+                    // Conectar
+                    connectToWifi();
                 }
             }
         });
 
-        // Efeito de foco nos inputs
-        document.querySelectorAll('input').forEach(input => {
-            input.addEventListener('focus', function() {
-                this.classList.remove('input-error');
-                const errorElement = this.
+        function showError(elementId, message) {
+            const errorElement = document.getElementById(elementId);
+            if (errorElement) {
+                errorElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + message;
+                errorElement.classList.add('show');
+            }
+        }
+
+        function connectToWifi() {
+            const connectBtn = document.getElementById('connectBtn');
+            const btnText = document.getElementById('btnText');
+            
+            currentStep = 3;
+            connectBtn.classList.add('loading');
+            connectBtn.disabled = true;
+            btnText.textContent = 'Conectando...';
+            
+            // Simular conexão
+            setTimeout(() => {
+                document.getElementById('formProgress').style.width = '100%';
+                document.getElementById('step2').classList.add('complete');
+                document.getElementById('step3').classList.add('active');
+                
+                setTimeout(() => {
+                    document.getElementById('successMessage').classList.add('show');
+                    connectBtn.style.display = 'none';
+                    
+                    // Log dos dados (aqui você faria a requisição real)
+                    console.log('Usuário conectado:', {
+                        nome: document.getElementById('fullName').value,
+                        email: document.getElementById('email').value,
+                        cpf: document.getElementById('cpf').value,
+                        telefone: document.getElementById('phone').value,
+                        timestamp: new Date().toISOString()
+                    });
+                    
+                    // Simular redirecionamento após 3 segundos
+                    setTimeout(() => {
+                        // window.location.href = 'https://andra.com.br/welcome';
+                        console.log('Redirecionamento simulado - conexão estabelecida!');
+                    }, 3000);
+                }, 1000);
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
