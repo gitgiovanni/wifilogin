@@ -595,198 +595,249 @@
         </div>
     </div>
 
-    <script>
-        let currentStep = 1;
+<script type="module">
+    // -----------------------------------------------------------
+    // 1. CONFIGURAÇÃO DO FIREBASE (JÁ COM SEUS DADOS)
+    // -----------------------------------------------------------
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // Formatação da data de nascimento
-        document.getElementById('birthdate').addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length > 8) value = value.substring(0, 8);
-            
-            if (value.length >= 5) {
-                value = value.replace(/^(\d{2})(\d{2})(\d{0,4})/, '$1/$2/$3');
-            } else if (value.length >= 3) {
-                value = value.replace(/^(\d{2})(\d{0,2})/, '$1/$2');
-            }
-            e.target.value = value;
-        });
+    const firebaseConfig = {
+        apiKey: "AIzaSyDyZNHhmeOBYrKdWxoucnqAzA2MJ5CF6wM",
+        authDomain: "wifiandra.firebaseapp.com",
+        projectId: "wifiandra",
+        storageBucket: "wifiandra.firebasestorage.app",
+        messagingSenderId: "153810513808",
+        appId: "1:153810513808:web:83fe7c9da058aab0154d15",
+        measurementId: "G-BP7F9EFVGN"
+    };
 
-        // Formatação do telefone
-        document.getElementById('phone').addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length > 11) value = value.substring(0, 11);
-            
-            if (value.length > 10) {
-                value = value.replace(/^(\d{2})(\d)/, '($1) $2');
-                value = value.replace(/(\d{5})(\d)/, '$1-$2');
-            } else if (value.length > 6) {
-                value = value.replace(/^(\d{2})(\d)/, '($1) $2');
-                value = value.replace(/(\d{4})(\d)/, '$1-$2');
-            } else if (value.length > 2) {
-                value = value.replace(/^(\d{2})(\d)/, '($1) $2');
-            }
-            e.target.value = value;
-        });
+    // Inicializa o Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-        // Validação da data de nascimento
-        function validateBirthdate(date) {
-            const parts = date.split('/');
-            if (parts.length !== 3) return false;
-            
-            const day = parseInt(parts[0]);
-            const month = parseInt(parts[1]);
-            const year = parseInt(parts[2]);
-            
-            if (day < 1 || day > 31 || month < 1 || month > 12 || year < 1900 || year > new Date().getFullYear()) {
-                return false;
-            }
-            
-            const dateObj = new Date(year, month - 1, day);
-            if (dateObj.getDate() !== day || dateObj.getMonth() !== month - 1 || dateObj.getFullYear() !== year) {
-                return false;
-            }
-            
-            // Verificar se a pessoa tem pelo menos 13 anos
-            const today = new Date();
-            const age = today.getFullYear() - year - (today.getMonth() < month - 1 || (today.getMonth() === month - 1 && today.getDate() < day) ? 1 : 0);
-            
-            return age >= 13;
+    // -----------------------------------------------------------
+    // 2. LÓGICA DO FORMULÁRIO
+    // -----------------------------------------------------------
+    
+    let currentStep = 1;
+
+    // --- MÁSCARAS E FORMATAÇÃO ---
+    
+    // Formatação da data de nascimento
+    document.getElementById('birthdate').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 8) value = value.substring(0, 8);
+        if (value.length >= 5) {
+            value = value.replace(/^(\d{2})(\d{2})(\d{0,4})/, '$1/$2/$3');
+        } else if (value.length >= 3) {
+            value = value.replace(/^(\d{2})(\d{0,2})/, '$1/$2');
         }
+        e.target.value = value;
+    });
 
-        // Limpar erros ao digitar
-        document.querySelectorAll('input').forEach(input => {
-            input.addEventListener('input', function() {
-                this.classList.remove('input-error');
-                const errorId = this.id + 'Error';
-                const errorElement = document.getElementById(errorId);
-                if (errorElement) {
-                    errorElement.classList.remove('show');
-                    errorElement.textContent = '';
-                }
-            });
-        });
+    // Formatação do telefone
+    document.getElementById('phone').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 11) value = value.substring(0, 11);
+        if (value.length > 10) {
+            value = value.replace(/^(\d{2})(\d)/, '($1) $2');
+            value = value.replace(/(\d{5})(\d)/, '$1-$2');
+        } else if (value.length > 6) {
+            value = value.replace(/^(\d{2})(\d)/, '($1) $2');
+            value = value.replace(/(\d{4})(\d)/, '$1-$2');
+        } else if (value.length > 2) {
+            value = value.replace(/^(\d{2})(\d)/, '($1) $2');
+        }
+        e.target.value = value;
+    });
 
-        // Validação do formulário
-        document.getElementById('wifiForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const fullName = document.getElementById('fullName');
-            const email = document.getElementById('email');
-            const birthdate = document.getElementById('birthdate');
-            const phone = document.getElementById('phone');
-            const acceptTerms = document.getElementById('acceptTerms');
-            const termsSection = document.getElementById('termsSection');
-            const basicInfoSection = document.getElementById('basicInfoSection');
-            
-            // Limpar todos os erros
-            document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
-            document.querySelectorAll('.error-message').forEach(el => {
-                el.classList.remove('show');
-                el.textContent = '';
-            });
-            
-            let isValid = true;
-            
-            if (currentStep === 1) {
-                // Validar informações básicas
-                if (!fullName.value.trim() || fullName.value.trim().length < 3) {
-                    showError('nameError', 'Nome deve ter pelo menos 3 caracteres');
-                    fullName.classList.add('input-error');
-                    isValid = false;
-                }
-                
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(email.value)) {
-                    showError('emailError', 'E-mail inválido');
-                    email.classList.add('input-error');
-                    isValid = false;
-                }
-                
-                if (!validateBirthdate(birthdate.value)) {
-                    showError('birthdateError', 'Data inválida ou idade mínima de 13 anos');
-                    birthdate.classList.add('input-error');
-                    isValid = false;
-                }
-                
-                if (phone.value.replace(/\D/g, '').length < 10) {
-                    showError('phoneError', 'Telefone inválido');
-                    phone.classList.add('input-error');
-                    isValid = false;
-                }
-                
-                if (isValid) {
-                    // Avançar para termos
-                    currentStep = 2;
-                    basicInfoSection.classList.add('hidden');
-                    termsSection.classList.remove('hidden');
-                    document.getElementById('formProgress').style.width = '66%';
-                    document.getElementById('step1').classList.add('complete');
-                    document.getElementById('step2').classList.add('active');
-                    document.getElementById('btnText').textContent = 'Aceitar e Conectar';
-                    
-                    // Scroll suave para os termos
-                    setTimeout(() => {
-                        termsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                    }, 100);
-                }
-            } else if (currentStep === 2) {
-                // Validar aceite dos termos
-                if (!acceptTerms.checked) {
-                    showError('termsError', 'Você deve aceitar os termos para continuar');
-                    isValid = false;
-                }
-                
-                if (isValid) {
-                    // Conectar
-                    connectToWifi();
-                }
-            }
-        });
+    // --- VALIDAÇÕES ---
 
-        function showError(elementId, message) {
-            const errorElement = document.getElementById(elementId);
+    function validateBirthdate(date) {
+        const parts = date.split('/');
+        if (parts.length !== 3) return false;
+        
+        const day = parseInt(parts[0]);
+        const month = parseInt(parts[1]);
+        const year = parseInt(parts[2]);
+        
+        if (day < 1 || day > 31 || month < 1 || month > 12 || year < 1900 || year > new Date().getFullYear()) {
+            return false;
+        }
+        
+        const dateObj = new Date(year, month - 1, day);
+        if (dateObj.getDate() !== day || dateObj.getMonth() !== month - 1 || dateObj.getFullYear() !== year) {
+            return false;
+        }
+        
+        // Verificar idade mínima (13 anos)
+        const today = new Date();
+        const age = today.getFullYear() - year - (today.getMonth() < month - 1 || (today.getMonth() === month - 1 && today.getDate() < day) ? 1 : 0);
+        
+        return age >= 13;
+    }
+
+    function showError(elementId, message) {
+        const errorElement = document.getElementById(elementId);
+        if (errorElement) {
+            errorElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + message;
+            errorElement.classList.add('show');
+        }
+    }
+
+    // Limpar erros ao digitar
+    document.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', function() {
+            this.classList.remove('input-error');
+            const errorId = this.id + 'Error';
+            const errorElement = document.getElementById(errorId);
             if (errorElement) {
-                errorElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + message;
-                errorElement.classList.add('show');
+                errorElement.classList.remove('show');
+                errorElement.textContent = '';
             }
-        }
+        });
+    });
 
-        function connectToWifi() {
-            const connectBtn = document.getElementById('connectBtn');
-            const btnText = document.getElementById('btnText');
+    // --- SUBMIT E NAVEGAÇÃO ---
+
+    document.getElementById('wifiForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const fullName = document.getElementById('fullName');
+        const email = document.getElementById('email');
+        const birthdate = document.getElementById('birthdate');
+        const phone = document.getElementById('phone');
+        const acceptTerms = document.getElementById('acceptTerms');
+        const termsSection = document.getElementById('termsSection');
+        const basicInfoSection = document.getElementById('basicInfoSection');
+        
+        // Limpar todos os erros
+        document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+        document.querySelectorAll('.error-message').forEach(el => {
+            el.classList.remove('show');
+            el.textContent = '';
+        });
+        
+        let isValid = true;
+        
+        if (currentStep === 1) {
+            // Validar informações básicas
+            if (!fullName.value.trim() || fullName.value.trim().length < 3) {
+                showError('nameError', 'Nome deve ter pelo menos 3 caracteres');
+                fullName.classList.add('input-error');
+                isValid = false;
+            }
             
-            currentStep = 3;
-            connectBtn.classList.add('loading');
-            connectBtn.disabled = true;
-            btnText.textContent = 'Conectando...';
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email.value)) {
+                showError('emailError', 'E-mail inválido');
+                email.classList.add('input-error');
+                isValid = false;
+            }
             
-            // Simular conexão
-            setTimeout(() => {
-                document.getElementById('formProgress').style.width = '100%';
-                document.getElementById('step2').classList.add('complete');
-                document.getElementById('step3').classList.add('active');
+            if (!validateBirthdate(birthdate.value)) {
+                showError('birthdateError', 'Data inválida ou idade mínima de 13 anos');
+                birthdate.classList.add('input-error');
+                isValid = false;
+            }
+            
+            if (phone.value.replace(/\D/g, '').length < 10) {
+                showError('phoneError', 'Telefone inválido');
+                phone.classList.add('input-error');
+                isValid = false;
+            }
+            
+            if (isValid) {
+                // Avançar para termos
+                currentStep = 2;
+                basicInfoSection.classList.add('hidden');
+                termsSection.classList.remove('hidden');
+                document.getElementById('formProgress').style.width = '66%';
+                document.getElementById('step1').classList.add('complete');
+                document.getElementById('step2').classList.add('active');
+                document.getElementById('btnText').textContent = 'Aceitar e Conectar';
                 
                 setTimeout(() => {
-                    document.getElementById('successMessage').classList.add('show');
-                    connectBtn.style.display = 'none';
-                    
-                    // Log dos dados (aqui você faria a requisição real)
-                    console.log('Usuário conectado:', {
-                        nome: document.getElementById('fullName').value,
-                        email: document.getElementById('email').value,
-                        dataDeNascimento: document.getElementById('birthdate').value,
-                        telefone: document.getElementById('phone').value,
-                        timestamp: new Date().toISOString()
-                    });
-                    
-                    // Simular redirecionamento após 3 segundos
-                    setTimeout(() => {
-                        // window.location.href = 'https://andra.com.br/welcome';
-                        console.log('Redirecionamento simulado - conexão estabelecida!');
-                    }, 3000);
-                }, 1000);
-            }, 1500);
+                    termsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 100);
+            }
+        } else if (currentStep === 2) {
+            // Validar aceite dos termos
+            if (!acceptTerms.checked) {
+                showError('termsError', 'Você deve aceitar os termos para continuar');
+                isValid = false;
+            }
+            
+            if (isValid) {
+                // Iniciar processo de conexão
+                connectToWifiFireBase();
+            }
         }
-    </script>
+    });
+
+    // -----------------------------------------------------------
+    // 3. FUNÇÃO DE SALVAR NO FIREBASE
+    // -----------------------------------------------------------
+    async function connectToWifiFireBase() {
+        const connectBtn = document.getElementById('connectBtn');
+        const btnText = document.getElementById('btnText');
+        
+        currentStep = 3;
+        connectBtn.classList.add('loading');
+        connectBtn.disabled = true;
+        btnText.textContent = 'Autenticando...';
+
+        try {
+            // Prepara os dados para salvar
+            const userData = {
+                nome: document.getElementById('fullName').value,
+                email: document.getElementById('email').value,
+                dataNascimento: document.getElementById('birthdate').value,
+                telefone: document.getElementById('phone').value,
+                aceitouTermos: true,
+                dataCadastro: serverTimestamp(), // Data e hora automática do servidor
+                userAgent: navigator.userAgent // Informações do dispositivo
+            };
+
+            // SALVA NO FIREBASE (Cria coleção 'usuarios_wifi' automaticamente)
+            const docRef = await addDoc(collection(db, "usuarios_wifi"), userData);
+            console.log("Cadastro realizado com ID: ", docRef.id);
+
+            // Animação de Sucesso
+            document.getElementById('formProgress').style.width = '100%';
+            document.getElementById('step2').classList.add('complete');
+            document.getElementById('step3').classList.add('active');
+            
+            document.getElementById('successMessage').classList.add('show');
+            connectBtn.style.display = 'none'; // Esconde o botão
+
+            // ---------------------------------------------------------
+            // REDIRECIONAMENTO DE CONEXÃO
+            // Aqui é onde você libera o acesso à internet.
+            // ---------------------------------------------------------
+            setTimeout(() => {
+                 // DICA: Se for um Hotspot Intelbras/Mikrotik, geralmente a URL é algo assim:
+                 // window.location.href = 'http://1.1.1.1/login?dst=http://google.com';
+                 
+                 // Por enquanto, redirecionando para o site da Andra ou Google:
+                 window.location.href = 'https://www.andra.com.br'; 
+            }, 3000);
+
+        } catch (e) {
+            console.error("Erro ao adicionar documento: ", e);
+            btnText.textContent = 'Tentar Novamente';
+            connectBtn.classList.remove('loading');
+            connectBtn.disabled = false;
+            
+            // Tratamento de erro específico para permissão
+            if(e.code === 'permission-denied') {
+                showError('termsError', 'Erro de permissão. Verifique as Regras no console do Firebase.');
+            } else {
+                showError('termsError', 'Erro de conexão. Verifique sua internet.');
+            }
+        }
+    }
+</script>
 </body>
 </html>
