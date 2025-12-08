@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel Admin - Exportar Dados</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #2D3748; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        button:hover { background: #1a202c; }
+        .success { color: green; margin-top: 10px; display: none; }
+        .error { color: red; margin-top: 10px; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>📊 Exportar Dados WiFi</h2>
+        
+        <div id="loginForm">
+            <input type="email" id="adminEmail" placeholder="E-mail Admin">
+            <input type="password" id="adminPass" placeholder="Senha">
+            <button onclick="fazerLogin()">Entrar e Baixar CSV</button>
+        </div>
+
+        <div id="loading" style="display:none">
+            <p>Buscando dados no banco...</p>
+        </div>
+
+        <p id="msg" class="success"></p>
+        <p id="err" class="error"></p>
+    </div>
+
+    <script type="module">
+        // -----------------------------------------------------------
+        // CONFIGURAÇÃO (COLE SUA CONFIG AQUI IGUAL AO OUTRO ARQUIVO)
+        // -----------------------------------------------------------
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, orderBy, query } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyZNHhmeOBYrKdWxoucnqAzA2MJ5CF6wM",
+            authDomain: "wifiandra.firebaseapp.com",
+            projectId: "wifiandra",
+            storageBucket: "wifiandra.firebasestorage.app",
+            messagingSenderId: "153810513808",
+            appId: "1:153810513808:web:83fe7c9da058aab0154d15",
+            measurementId: "G-BP7F9EFVGN"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // Função global para o botão funcionar
+        window.fazerLogin = async function() {
+            const email = document.getElementById('adminEmail').value;
+            const pass = document.getElementById('adminPass').value;
+            const btn = document.querySelector('button');
+            const msg = document.getElementById('msg');
+            const err = document.getElementById('err');
+            const loading = document.getElementById('loading');
+
+            if(!email || !pass) {
+                err.innerText = "Preencha e-mail e senha.";
+                err.style.display = 'block';
+                return;
+            }
+
+            try {
+                err.style.display = 'none';
+                btn.disabled = true;
+                btn.innerText = "Autenticando...";
+                
+                // 1. Faz Login
+                await signInWithEmailAndPassword(auth, email, pass);
+                
+                btn.innerText = "Baixando dados...";
+                loading.style.display = 'block';
+
+                // 2. Busca os dados
+                // Tenta ordenar por data. Se der erro de índice, busca sem ordenar.
+                let q = query(collection(db, "usuarios_wifi"));
+                try {
+                    q = query(collection(db, "usuarios_wifi"), orderBy("dataCadastro", "desc"));
+                } catch(e) { console.log("Índice ainda não criado, buscando sem ordem."); }
+
+                const querySnapshot = await getDocs(q);
+                
+                if (querySnapshot.empty) {
+                    throw new Error("Nenhum cadastro encontrado.");
+                }
+
+                // 3. Monta o CSV (Formato Excel)
+                let csvContent = "\uFEFF"; // BOM para acentuação funcionar no Excel
+                csvContent += "Nome;Email;Telefone;Nascimento;Data Cadastro\n"; // Cabeçalho
+
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    
+                    // Formata a data se ela existir
+                    let dataFormatada = "";
+                    if (data.dataCadastro && data.dataCadastro.toDate) {
+                        dataFormatada = data.dataCadastro.toDate().toLocaleString('pt-BR');
+                    }
+
+                    // Protege contra campos vazios e ponto e vírgula no texto
+                    const nome = (data.nome || "").replace(/;/g, ",");
+                    const email = (data.email || "");
+                    const tel = (data.telefone || "");
+                    const nasc = (data.dataNascimento || "");
+
+                    csvContent += `${nome};${email};${tel};${nasc};${dataFormatada}\n`;
+                });
+
+                // 4. Força o Download
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.setAttribute("href", url);
+                link.setAttribute("download", "relatorio_wifi_andra.csv");
+                document.body.appendChild(link);
+                link.click();
+
+                msg.innerText = `${querySnapshot.size} cadastros exportados com sucesso!`;
+                msg.style.display = 'block';
+                btn.innerText = "Baixar Novamente";
+                btn.disabled = false;
+                loading.style.display = 'none';
+
+            } catch (error) {
+                console.error(error);
+                let text = "Erro ao baixar.";
+                if(error.code === 'auth/invalid-credential') text = "Senha ou e-mail incorretos.";
+                if(error.code === 'permission-denied') text = "Sem permissão. Verifique as Regras do Firestore.";
+                
+                err.innerText = text + " (" + error.message + ")";
+                err.style.display = 'block';
+                btn.disabled = false;
+                btn.innerText = "Entrar e Baixar CSV";
+                loading.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
