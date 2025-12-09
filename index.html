@@ -456,6 +456,58 @@
             font-size: 13px;
         }
 
+        /* --- NOVOS ESTILOS PARA O MODAL (Adicionado conforme pedido) --- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            text-align: left;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #aaa;
+        }
+
+        .link-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: inherit;
+            font-family: inherit;
+            padding: 0;
+        }
+        /* ---------------------------------------------------------------- */
+
         @media (max-width: 500px) {
             .container {
                 padding: 30px 25px;
@@ -483,6 +535,18 @@
     </style>
 </head>
 <body>
+    
+    <div class="modal-overlay" id="privacyModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="toggleModal()">&times;</span>
+            <h2 style="color: #c71d23; margin-bottom: 15px;">Política de Privacidade Simplificada</h2>
+            <p style="margin-bottom: 10px;"><strong>1. Coleta de Dados:</strong> Coletamos seu nome, e-mail, telefone e data de nascimento para liberar seu acesso à internet e garantir a segurança da rede, conforme exigido pelo Marco Civil da Internet.</p>
+            <p style="margin-bottom: 10px;"><strong>2. Uso das Informações:</strong> Seus dados de conexão são mantidos em sigilo pelo prazo legal. Caso você autorize (no checkbox de marketing), utilizaremos seu contato para enviar ofertas exclusivas da Andra.</p>
+            <p style="margin-bottom: 10px;"><strong>3. Seus Direitos:</strong> Você pode solicitar a exclusão dos seus dados de marketing a qualquer momento entrando em contato com nosso suporte.</p>
+            <p style="font-size: 12px; color: #999; margin-top: 20px;">Esta política está em conformidade com a Lei Geral de Proteção de Dados (LGPD - Lei 13.709/2018).</p>
+        </div>
+    </div>
+
     <div class="container">
         <div class="logo-container">
             <div class="logo">
@@ -559,9 +623,19 @@
                     <div class="terms-checkbox-container">
                         <input type="checkbox" id="acceptTerms" name="acceptTerms">
                         <label for="acceptTerms">
-                            Li e concordo com os <a href="#" target="_blank">Termos de Uso</a> e <a href="#" target="_blank">Política de Privacidade</a>
+                            Li e concordo com os Termos de Uso e a <button type="button" class="link-btn" onclick="toggleModal()">Política de Privacidade</button>
                         </label>
                     </div>
+                    
+                    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 15px 0;">
+
+                    <div class="terms-checkbox-container">
+                        <input type="checkbox" id="acceptMarketing" name="acceptMarketing">
+                        <label for="acceptMarketing">
+                            Quero receber ofertas e novidades da Andra no meu e-mail e WhatsApp.
+                        </label>
+                    </div>
+
                     <div class="error-message" id="termsError"></div>
                 </div>
             </div>
@@ -597,7 +671,7 @@
 
 <script type="module">
     // -----------------------------------------------------------
-    // 1. CONFIGURAÇÃO DO FIREBASE (JÁ COM SEUS DADOS)
+    // 1. CONFIGURAÇÃO DO FIREBASE
     // -----------------------------------------------------------
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -612,19 +686,27 @@
         measurementId: "G-BP7F9EFVGN"
     };
 
-    // Inicializa o Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
     // -----------------------------------------------------------
-    // 2. LÓGICA DO FORMULÁRIO
+    // 2. FUNÇÕES GLOBAIS (MODAL)
     // -----------------------------------------------------------
-    
+    window.toggleModal = function() {
+        const modal = document.getElementById('privacyModal');
+        if (modal.classList.contains('open')) {
+            modal.classList.remove('open');
+        } else {
+            modal.classList.add('open');
+        }
+    }
+
+    // -----------------------------------------------------------
+    // 3. LÓGICA DO FORMULÁRIO
+    // -----------------------------------------------------------
     let currentStep = 1;
 
     // --- MÁSCARAS E FORMATAÇÃO ---
-    
-    // Formatação da data de nascimento
     document.getElementById('birthdate').addEventListener('input', function(e) {
         let value = e.target.value.replace(/\D/g, '');
         if (value.length > 8) value = value.substring(0, 8);
@@ -636,7 +718,6 @@
         e.target.value = value;
     });
 
-    // Formatação do telefone
     document.getElementById('phone').addEventListener('input', function(e) {
         let value = e.target.value.replace(/\D/g, '');
         if (value.length > 11) value = value.substring(0, 11);
@@ -653,7 +734,6 @@
     });
 
     // --- VALIDAÇÕES ---
-
     function validateBirthdate(date) {
         const parts = date.split('/');
         if (parts.length !== 3) return false;
@@ -671,7 +751,6 @@
             return false;
         }
         
-        // Verificar idade mínima (13 anos)
         const today = new Date();
         const age = today.getFullYear() - year - (today.getMonth() < month - 1 || (today.getMonth() === month - 1 && today.getDate() < day) ? 1 : 0);
         
@@ -686,7 +765,6 @@
         }
     }
 
-    // Limpar erros ao digitar
     document.querySelectorAll('input').forEach(input => {
         input.addEventListener('input', function() {
             this.classList.remove('input-error');
@@ -700,7 +778,6 @@
     });
 
     // --- SUBMIT E NAVEGAÇÃO ---
-
     document.getElementById('wifiForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
@@ -712,7 +789,6 @@
         const termsSection = document.getElementById('termsSection');
         const basicInfoSection = document.getElementById('basicInfoSection');
         
-        // Limpar todos os erros
         document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
         document.querySelectorAll('.error-message').forEach(el => {
             el.classList.remove('show');
@@ -722,7 +798,6 @@
         let isValid = true;
         
         if (currentStep === 1) {
-            // Validar informações básicas
             if (!fullName.value.trim() || fullName.value.trim().length < 3) {
                 showError('nameError', 'Nome deve ter pelo menos 3 caracteres');
                 fullName.classList.add('input-error');
@@ -749,7 +824,6 @@
             }
             
             if (isValid) {
-                // Avançar para termos
                 currentStep = 2;
                 basicInfoSection.classList.add('hidden');
                 termsSection.classList.remove('hidden');
@@ -763,21 +837,19 @@
                 }, 100);
             }
         } else if (currentStep === 2) {
-            // Validar aceite dos termos
             if (!acceptTerms.checked) {
                 showError('termsError', 'Você deve aceitar os termos para continuar');
                 isValid = false;
             }
             
             if (isValid) {
-                // Iniciar processo de conexão
                 connectToWifiFireBase();
             }
         }
     });
 
     // -----------------------------------------------------------
-    // 3. FUNÇÃO DE SALVAR NO FIREBASE
+    // 4. FUNÇÃO DE SALVAR NO FIREBASE
     // -----------------------------------------------------------
     async function connectToWifiFireBase() {
         const connectBtn = document.getElementById('connectBtn');
@@ -789,38 +861,32 @@
         btnText.textContent = 'Autenticando...';
 
         try {
-            // Prepara os dados para salvar
+            // CAPTURA DO NOVO CAMPO DE MARKETING
+            const marketingCheckbox = document.getElementById('acceptMarketing');
+            const aceitouMarketing = marketingCheckbox ? marketingCheckbox.checked : false;
+
             const userData = {
                 nome: document.getElementById('fullName').value,
                 email: document.getElementById('email').value,
                 dataNascimento: document.getElementById('birthdate').value,
                 telefone: document.getElementById('phone').value,
                 aceitouTermos: true,
-                dataCadastro: serverTimestamp(), // Data e hora automática do servidor
-                userAgent: navigator.userAgent // Informações do dispositivo
+                aceitouMarketing: aceitouMarketing, // CAMPO NOVO
+                dataCadastro: serverTimestamp(),
+                userAgent: navigator.userAgent
             };
 
-            // SALVA NO FIREBASE (Cria coleção 'usuarios_wifi' automaticamente)
             const docRef = await addDoc(collection(db, "usuarios_wifi"), userData);
             console.log("Cadastro realizado com ID: ", docRef.id);
 
-            // Animação de Sucesso
             document.getElementById('formProgress').style.width = '100%';
             document.getElementById('step2').classList.add('complete');
             document.getElementById('step3').classList.add('active');
             
             document.getElementById('successMessage').classList.add('show');
-            connectBtn.style.display = 'none'; // Esconde o botão
+            connectBtn.style.display = 'none'; 
 
-            // ---------------------------------------------------------
-            // REDIRECIONAMENTO DE CONEXÃO
-            // Aqui é onde você libera o acesso à internet.
-            // ---------------------------------------------------------
             setTimeout(() => {
-                 // DICA: Se for um Hotspot Intelbras/Mikrotik, geralmente a URL é algo assim:
-                 // window.location.href = 'http://1.1.1.1/login?dst=http://google.com';
-                 
-                 // Por enquanto, redirecionando para o site da Andra ou Google:
                  window.location.href = 'https://www.andra.com.br'; 
             }, 3000);
 
@@ -830,7 +896,6 @@
             connectBtn.classList.remove('loading');
             connectBtn.disabled = false;
             
-            // Tratamento de erro específico para permissão
             if(e.code === 'permission-denied') {
                 showError('termsError', 'Erro de permissão. Verifique as Regras no console do Firebase.');
             } else {
